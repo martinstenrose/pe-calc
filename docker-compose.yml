@@ -1,6 +1,6 @@
 services:
   pe-calc:
-    build: .
+    image: ghcr.io/martinstenrose/pe-calc:latest
     restart: unless-stopped
     ports:
       - "80:80"
