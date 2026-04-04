@@ -261,7 +261,7 @@
         <label for="growth" data-i18n="growth"></label>
         <div class="pct-input-wrap">
           <input type="number" class="pct-input" id="growth-input" min="0" max="30" step="0.5" value="10">
-          <span class="pct-suffix">%</span>
+          <span class="pct-suffix" data-pct>%</span>
         </div>
       </div>
       <input type="range" id="growth" min="0" max="30" step="0.5" value="10">
@@ -272,7 +272,7 @@
         <label for="required" data-i18n="required"></label>
         <div class="pct-input-wrap">
           <input type="number" class="pct-input" id="required-input" min="5" max="25" step="0.5" value="10">
-          <span class="pct-suffix">%</span>
+          <span class="pct-suffix" data-pct>%</span>
         </div>
       </div>
       <input type="range" id="required" min="5" max="25" step="0.5" value="10">
@@ -283,7 +283,7 @@
         <label for="terminal-growth" data-i18n="terminalGrowth"></label>
         <div class="pct-input-wrap">
           <input type="number" class="pct-input" id="terminal-growth-input" min="0" max="5" step="0.25" value="2">
-          <span class="pct-suffix">%</span>
+          <span class="pct-suffix" data-pct>%</span>
         </div>
       </div>
       <input type="range" id="terminal-growth" min="0" max="5" step="0.25" value="2">
@@ -359,7 +359,7 @@
       peTerminal: 'P/E (terminalvärde)',
       justifiedPE: 'Motiverat P/E',
       targetPrice: 'Riktkurs',
-      buyPrice: 'Köpkurs (−20% MOS)',
+      buyPrice: 'Köpkurs (−20 % MOS)',
     }
   };
 
@@ -383,6 +383,9 @@
     });
     document.title = t('title');
     langBtn.textContent = langs[lang];
+    document.querySelectorAll('[data-pct]').forEach(el => {
+      el.textContent = lang === 'sv' ? '\u202F%' : '%';
+    });
     applyThemeLabel();
   }
 
