@@ -5,7 +5,7 @@ services:
     ports:
       - "80:80"
 
-  # Caddy reverse proxy example for pe.stenrose.se
+  # Caddy reverse proxy example:
   # Uncomment and adjust as needed.
   #
   # caddy:
@@ -22,7 +22,7 @@ services:
   #     - pe-calc
   #
   # Caddyfile contents:
-  #   pe.stenrose.se {
+  #   your.domain.example {
   #     reverse_proxy pe-calc:80
   #   }
 
