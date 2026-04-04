@@ -453,7 +453,9 @@
   epsInput.addEventListener('input', calculate);
 
   function fmt(n) {
-    return isFinite(n) ? n.toFixed(2) : '—';
+    if (!isFinite(n)) return '—';
+    const s = n.toFixed(2);
+    return lang === 'sv' ? s.replace('.', ',') : s;
   }
 
   function calculate() {
