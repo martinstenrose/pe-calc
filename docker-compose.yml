@@ -1,0 +1,31 @@
+services:
+  pe-calc:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "80:80"
+
+  # Caddy reverse proxy example for pe.stenrose.se
+  # Uncomment and adjust as needed.
+  #
+  # caddy:
+  #   image: caddy:alpine
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile:ro
+  #     - caddy_data:/data
+  #     - caddy_config:/config
+  #   depends_on:
+  #     - pe-calc
+  #
+  # Caddyfile contents:
+  #   pe.stenrose.se {
+  #     reverse_proxy pe-calc:80
+  #   }
+
+# volumes:
+#   caddy_data:
+#   caddy_config:
