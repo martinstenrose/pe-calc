@@ -2,8 +2,6 @@ services:
   pe-calc:
     image: ghcr.io/martinstenrose/pe-calc:latest
     restart: unless-stopped
-    ports:
-      - "80:80"
     # labels:
     #   caddy: your.domain.example
     #   caddy.reverse_proxy: "{{upstreams 80}}"
