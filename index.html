@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Justified P/E Calculator</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-surface: #f5f5f5;
+    --bg-toolbar: #ffffff;
+    --text: #1a1a1a;
+    --text-muted: #666666;
+    --border: #e0e0e0;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --result-bg: #f0f7ff;
+    --result-border: #bfdbfe;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  [data-theme="dark"] {
+    --bg: #111111;
+    --bg-surface: #1a1a1a;
+    --bg-toolbar: #1a1a1a;
+    --text: #e5e5e5;
+    --text-muted: #888888;
+    --border: #333333;
+    --accent: #60a5fa;
+    --accent-hover: #93bbfd;
+    --result-bg: #1a2332;
+    --result-border: #2a3f5f;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+    background: var(--bg-toolbar);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  .toolbar-title {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .toolbar-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .toolbar-btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-family: inherit;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+
+  .toolbar-btn:hover {
+    background: var(--border);
+  }
+
+  main {
+    max-width: 480px;
+    margin: 2rem auto;
+    padding: 0 1.25rem;
+  }
+
+  .section {
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .slider-group {
+    margin-bottom: 1rem;
+  }
+
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.35rem;
+    font-size: 0.875rem;
+  }
+
+  .slider-label label {
+    font-weight: 500;
+  }
+
+  .pct-input-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .pct-input {
+    width: 4.5rem;
+    padding: 0.2rem 1.2rem 0.2rem 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-surface);
+    color: var(--text);
+    font-size: 0.85rem;
+    font-family: inherit;
+    text-align: right;
+  }
+
+  .pct-input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+  }
+
+  .pct-suffix {
+    position: absolute;
+    right: 0.4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .toggle-row input[type="checkbox"] {
+    accent-color: var(--accent);
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+  }
+
+  .eps-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .eps-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.35rem;
+  }
+
+  .eps-input {
+    width: 100%;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-surface);
+    color: var(--text);
+    font-size: 1rem;
+    font-family: inherit;
+  }
+
+  .eps-input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+  }
+
+  .results {
+    background: var(--result-bg);
+    border: 1px solid var(--result-border);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+  }
+
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.4rem 0;
+    font-size: 0.9rem;
+  }
+
+  .result-row + .result-row {
+    border-top: 1px solid var(--border);
+  }
+
+  .result-label {
+    color: var(--text-muted);
+  }
+
+  .result-value {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .result-row.dimmed {
+    opacity: 0.35;
+  }
+
+  .result-row.prominent .result-value {
+    font-size: 1.25rem;
+    color: var(--accent);
+  }
+
+  .result-row.prominent .result-label {
+    font-weight: 600;
+    color: var(--text);
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="toolbar-title" data-i18n="title"></div>
+  <div class="toolbar-actions">
+    <button class="toolbar-btn" id="lang-btn" aria-label="Switch language"></button>
+    <button class="toolbar-btn" id="theme-btn" aria-label="Switch theme"></button>
+  </div>
+</div>
+
+<main>
+  <div class="section">
+    <div class="section-title" data-i18n="assumptions"></div>
+
+    <div class="slider-group">
+      <div class="slider-label">
+        <label for="growth" data-i18n="growth"></label>
+        <div class="pct-input-wrap">
+          <input type="number" class="pct-input" id="growth-input" min="0" max="30" step="0.5" value="10">
+          <span class="pct-suffix">%</span>
+        </div>
+      </div>
+      <input type="range" id="growth" min="0" max="30" step="0.5" value="10">
+    </div>
+
+    <div class="slider-group">
+      <div class="slider-label">
+        <label for="required" data-i18n="required"></label>
+        <div class="pct-input-wrap">
+          <input type="number" class="pct-input" id="required-input" min="5" max="25" step="0.5" value="10">
+          <span class="pct-suffix">%</span>
+        </div>
+      </div>
+      <input type="range" id="required" min="5" max="25" step="0.5" value="10">
+    </div>
+
+    <div class="slider-group">
+      <div class="slider-label">
+        <label for="terminal-growth" data-i18n="terminalGrowth"></label>
+        <div class="pct-input-wrap">
+          <input type="number" class="pct-input" id="terminal-growth-input" min="0" max="5" step="0.25" value="2">
+          <span class="pct-suffix">%</span>
+        </div>
+      </div>
+      <input type="range" id="terminal-growth" min="0" max="5" step="0.25" value="2">
+    </div>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="include-terminal" checked>
+      <label for="include-terminal" data-i18n="includeTerminal"></label>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="eps-group">
+      <label for="eps" data-i18n="epsEstimate"></label>
+      <input type="number" class="eps-input" id="eps" step="0.01" value="" placeholder="0.00">
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title" data-i18n="results"></div>
+    <div class="results">
+      <div class="result-row" id="row-pe15">
+        <span class="result-label" data-i18n="pe15"></span>
+        <span class="result-value" id="val-pe15">—</span>
+      </div>
+      <div class="result-row" id="row-terminal-pe">
+        <span class="result-label" data-i18n="peTerminal"></span>
+        <span class="result-value" id="val-terminal-pe">—</span>
+      </div>
+      <div class="result-row prominent" id="row-justified-pe">
+        <span class="result-label" data-i18n="justifiedPE"></span>
+        <span class="result-value" id="val-justified-pe">—</span>
+      </div>
+      <div class="result-row" id="row-target">
+        <span class="result-label" data-i18n="targetPrice"></span>
+        <span class="result-value" id="val-target">—</span>
+      </div>
+      <div class="result-row" id="row-buy">
+        <span class="result-label" data-i18n="buyPrice"></span>
+        <span class="result-value" id="val-buy">—</span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const i18n = {
+    en: {
+      title: 'Justified P/E Calculator',
+      assumptions: 'Assumptions',
+      growth: 'Growth rate (years 1–15)',
+      required: 'Required return',
+      terminalGrowth: 'Terminal growth rate',
+      includeTerminal: 'Include terminal value',
+      epsEstimate: 'EPS estimate',
+      results: 'Results',
+      pe15: 'P/E (years 1–15)',
+      peTerminal: 'P/E (terminal value)',
+      justifiedPE: 'Justified P/E',
+      targetPrice: 'Target price',
+      buyPrice: 'Buy price (−20% MOS)',
+    },
+    sv: {
+      title: 'Motiverat P/E-tal',
+      assumptions: 'Antaganden',
+      growth: 'Tillväxttakt (år 1–15)',
+      required: 'Avkastningskrav',
+      terminalGrowth: 'Terminal tillväxttakt',
+      includeTerminal: 'Inkludera terminalvärde',
+      epsEstimate: 'EPS-estimat',
+      results: 'Resultat',
+      pe15: 'P/E (år 1–15)',
+      peTerminal: 'P/E (terminalvärde)',
+      justifiedPE: 'Motiverat P/E',
+      targetPrice: 'Riktkurs',
+      buyPrice: 'Köpkurs (−20% MOS)',
+    }
+  };
+
+  let lang = localStorage.getItem('lang');
+  if (!lang) {
+    const nav = navigator.language || '';
+    lang = nav === 'sv' || nav.startsWith('sv-') ? 'sv' : 'en';
+  }
+
+  function t(key) {
+    return i18n[lang][key] || key;
+  }
+
+  const langs = { en: '🇬🇧', sv: '🇸🇪' };
+
+  function applyLang() {
+    document.documentElement.lang = lang;
+    localStorage.setItem('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      el.textContent = t(el.dataset.i18n);
+    });
+    document.title = t('title');
+    langBtn.textContent = langs[lang];
+    applyThemeLabel();
+  }
+
+  const langBtn = document.getElementById('lang-btn');
+  langBtn.addEventListener('click', () => {
+    lang = lang === 'en' ? 'sv' : 'en';
+    applyLang();
+  });
+
+  // Theme
+  const themes = ['light', 'dark', 'system'];
+  let theme = localStorage.getItem('theme') || 'system';
+  const themeBtn = document.getElementById('theme-btn');
+  const darkMq = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function resolveTheme() {
+    if (theme === 'system') return darkMq.matches ? 'dark' : 'light';
+    return theme;
+  }
+
+  function applyTheme() {
+    const resolved = resolveTheme();
+    document.documentElement.setAttribute('data-theme', resolved);
+    localStorage.setItem('theme', theme);
+    applyThemeLabel();
+  }
+
+  function applyThemeLabel() {
+    const icons = {
+      light: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+      dark: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+      system: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>'
+    };
+    themeBtn.innerHTML = icons[theme];
+  }
+
+  themeBtn.addEventListener('click', () => {
+    theme = themes[(themes.indexOf(theme) + 1) % themes.length];
+    applyTheme();
+  });
+
+  darkMq.addEventListener('change', () => {
+    if (theme === 'system') applyTheme();
+  });
+
+  // Slider + input sync
+  function syncPair(sliderId, inputId) {
+    const slider = document.getElementById(sliderId);
+    const input = document.getElementById(inputId);
+    slider.addEventListener('input', () => { input.value = slider.value; calculate(); });
+    input.addEventListener('input', () => {
+      let v = parseFloat(input.value);
+      if (!isNaN(v)) {
+        v = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), v));
+        slider.value = v;
+      }
+      calculate();
+    });
+  }
+
+  syncPair('growth', 'growth-input');
+  syncPair('required', 'required-input');
+  syncPair('terminal-growth', 'terminal-growth-input');
+
+  const includeTerminal = document.getElementById('include-terminal');
+  const epsInput = document.getElementById('eps');
+  includeTerminal.addEventListener('change', calculate);
+  epsInput.addEventListener('input', calculate);
+
+  function fmt(n) {
+    return isFinite(n) ? n.toFixed(2) : '—';
+  }
+
+  function calculate() {
+    const g = parseFloat(document.getElementById('growth').value) / 100;
+    const r = parseFloat(document.getElementById('required').value) / 100;
+    const tg = parseFloat(document.getElementById('terminal-growth').value) / 100;
+    const eps = parseFloat(epsInput.value);
+    const withTerminal = includeTerminal.checked;
+
+    let pe15 = 0;
+    for (let t = 1; t <= 15; t++) {
+      pe15 += Math.pow(1 + g, t) / Math.pow(1 + r, t);
+    }
+
+    let terminalPE = 0;
+    if (r > tg) {
+      terminalPE = (Math.pow(1 + g, 15) * (1 + tg)) / ((r - tg) * Math.pow(1 + r, 15));
+    }
+
+    const justifiedPE = pe15 + (withTerminal ? terminalPE : 0);
+    const targetPrice = !isNaN(eps) ? justifiedPE * eps : NaN;
+    const buyPrice = !isNaN(targetPrice) ? targetPrice * 0.80 : NaN;
+
+    document.getElementById('val-pe15').textContent = fmt(pe15);
+    document.getElementById('val-terminal-pe').textContent = fmt(terminalPE);
+    document.getElementById('val-justified-pe').textContent = fmt(justifiedPE);
+    document.getElementById('val-target').textContent = !isNaN(eps) && eps ? fmt(targetPrice) : '—';
+    document.getElementById('val-buy').textContent = !isNaN(eps) && eps ? fmt(buyPrice) : '—';
+
+    document.getElementById('row-terminal-pe').classList.toggle('dimmed', !withTerminal);
+  }
+
+  // Init
+  applyTheme();
+  applyLang();
+  calculate();
+</script>
+</body>
+</html>
