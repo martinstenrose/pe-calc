@@ -71,13 +71,18 @@
     background: var(--bg-surface);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 0.35rem 0.65rem;
+    padding: 0;
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.8rem;
     font-family: inherit;
     transition: background 0.15s;
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
   }
 
   .toolbar-btn:hover {
@@ -260,11 +265,11 @@
       <div class="slider-label">
         <label for="growth" data-i18n="growth"></label>
         <div class="pct-input-wrap">
-          <input type="number" class="pct-input" id="growth-input" min="0" max="30" step="0.5" value="10">
+          <input type="number" class="pct-input" id="growth-input" min="0" max="30" step="0.5" value="5">
           <span class="pct-suffix" data-pct>%</span>
         </div>
       </div>
-      <input type="range" id="growth" min="0" max="30" step="0.5" value="10">
+      <input type="range" id="growth" min="0" max="30" step="0.5" value="5">
     </div>
 
     <div class="slider-group">
@@ -298,7 +303,7 @@
   <div class="section">
     <div class="eps-group">
       <label for="eps" data-i18n="epsEstimate"></label>
-      <input type="number" class="eps-input" id="eps" step="0.01" value="" placeholder="0.00">
+      <input type="text" inputmode="decimal" class="eps-input" id="eps" value="" placeholder="0.00">
     </div>
   </div>
 
@@ -353,7 +358,7 @@
       required: 'Avkastningskrav',
       terminalGrowth: 'Terminal tillväxttakt',
       includeTerminal: 'Inkludera terminalvärde',
-      epsEstimate: 'EPS-estimat',
+      epsEstimate: 'VPA-estimat',
       results: 'Resultat',
       pe15: 'P/E (år 1–15)',
       peTerminal: 'P/E (terminalvärde)',
@@ -386,6 +391,12 @@
     document.querySelectorAll('[data-pct]').forEach(el => {
       el.textContent = lang === 'sv' ? '\u202F%' : '%';
     });
+    const rawEps = epsInput.value.replace(',', '.');
+    epsInput.placeholder = lang === 'sv' ? '0,00' : '0.00';
+    if (rawEps && !isNaN(parseFloat(rawEps))) {
+      const num = parseFloat(rawEps);
+      epsInput.value = lang === 'sv' ? String(num).replace('.', ',') : String(num);
+    }
     applyThemeLabel();
   }
 
@@ -465,7 +476,7 @@
     const g = parseFloat(document.getElementById('growth').value) / 100;
     const r = parseFloat(document.getElementById('required').value) / 100;
     const tg = parseFloat(document.getElementById('terminal-growth').value) / 100;
-    const eps = parseFloat(epsInput.value);
+    const eps = parseFloat(epsInput.value.replace(',', '.'));
     const withTerminal = includeTerminal.checked;
 
     let pe15 = 0;
