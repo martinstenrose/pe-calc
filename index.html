@@ -369,7 +369,8 @@
     }
   };
 
-  let lang = localStorage.getItem('lang');
+  const urlLang = new URLSearchParams(location.search).get('lang');
+  let lang = (urlLang && i18n[urlLang]) ? urlLang : localStorage.getItem('lang');
   if (!lang) {
     const nav = navigator.language || '';
     lang = nav === 'sv' || nav.startsWith('sv-') ? 'sv' : 'en';
