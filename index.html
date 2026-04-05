@@ -298,7 +298,7 @@
   <div class="section">
     <div class="eps-group">
       <label for="eps" data-i18n="epsEstimate"></label>
-      <input type="number" class="eps-input" id="eps" step="0.01" value="" placeholder="0.00">
+      <input type="text" inputmode="decimal" class="eps-input" id="eps" value="" placeholder="0.00">
     </div>
   </div>
 
@@ -386,6 +386,12 @@
     document.querySelectorAll('[data-pct]').forEach(el => {
       el.textContent = lang === 'sv' ? '\u202F%' : '%';
     });
+    const rawEps = epsInput.value.replace(',', '.');
+    epsInput.placeholder = lang === 'sv' ? '0,00' : '0.00';
+    if (rawEps && !isNaN(parseFloat(rawEps))) {
+      const num = parseFloat(rawEps);
+      epsInput.value = lang === 'sv' ? String(num).replace('.', ',') : String(num);
+    }
     applyThemeLabel();
   }
 
@@ -465,7 +471,7 @@
     const g = parseFloat(document.getElementById('growth').value) / 100;
     const r = parseFloat(document.getElementById('required').value) / 100;
     const tg = parseFloat(document.getElementById('terminal-growth').value) / 100;
-    const eps = parseFloat(epsInput.value);
+    const eps = parseFloat(epsInput.value.replace(',', '.'));
     const withTerminal = includeTerminal.checked;
 
     let pe15 = 0;
